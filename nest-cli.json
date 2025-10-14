@@ -1,8 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/krealty-api/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/krealty-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/krealty-api",
+  "projects": {
+    "krealty": {
+      "type": "application",
+      "root": "apps/krealty-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/krealty-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/krealty-api/tsconfig.app.json"
+      }
+    },
+    "krealty-batch": {
+      "type": "application",
+      "root": "apps/krealty-batch",
+      "entryFile": "main",
+      "sourceRoot": "apps/krealty-batch/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/krealty-batch/tsconfig.app.json"
+      }
+    }
   }
 }
