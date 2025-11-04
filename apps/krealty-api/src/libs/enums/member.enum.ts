@@ -9,8 +9,8 @@ registerEnumType(MemberType, { name: 'MemberType' }); // This one is needed for 
 
 export enum MemberStatus {
   ACTIVE = 'ACTIVE',
-  BLOCKED = 'BLOCKED',
-  DELETED = 'DELETED',
+  BLOCK = 'BLOCK',
+  DELETE = 'DELETE',
 }
 registerEnumType(MemberStatus, { name: 'MemberStatus' });
 
