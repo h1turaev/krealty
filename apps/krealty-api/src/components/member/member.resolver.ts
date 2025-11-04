@@ -1,8 +1,11 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, UseGuards } from '@nestjs/common';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { Member } from '../../libs/dto/member/member';
+import { ObjectId } from 'mongoose';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
 
 @Resolver()
 export class MemberResolver {
@@ -30,15 +33,35 @@ export class MemberResolver {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => String)
-  public async updateMember(): Promise<string> {
+  public async updateMember(@AuthMember('_id') memberId: ObjectId): Promise<string> {
     console.log('mutation: updateMember');
     return this.memberService.updateMember();
+  }
+
+  @UseGuards(AuthGuard)
+  @Query(() => String)
+  public async checkAuth(@AuthMember('memberNick') memberNick: string): Promise<string> {
+    console.log('query: checkAuth');
+    console.log('memberNick:', memberNick);
+    return `Hi ${memberNick}, you are authenticated!`;
   }
 
   @Query(() => String)
   public async getMember(): Promise<string> {
     console.log('getMember: query');
     return this.memberService.getMember();
+  }
+
+  @Mutation(() => String)
+  public async getAllMembersByAdmin(): Promise<string> {
+    return this.memberService.getAllMembersByAdmin();
+  }
+
+  @Mutation(() => String)
+  public async updateMemberByAdmin(): Promise<string> {
+    console.log('Mutation: updateMemberByAdmin');
+    return this.memberService.updateMemberByAdmin();
   }
 }

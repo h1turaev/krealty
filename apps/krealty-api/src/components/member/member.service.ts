@@ -27,7 +27,6 @@ export class MemberService {
   }
 
   public async login(input: LoginInput): Promise<Member> {
-    input.memberPassword = await this.authService.hashPassword(input.memberPassword);
     const { memberNick, memberPassword } = input;
     const response: Member = await this.memberModel
       .findOne({ memberNick: memberNick })
@@ -40,7 +39,7 @@ export class MemberService {
       throw new InternalServerErrorException(Message.BLOCKED_USER);
     }
 
-    const isMatch = memberPassword === response.memberPassword;
+    const isMatch = await this.authService.comparePassword(memberPassword, response.memberPassword);
     if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
     response.accessToken = await this.authService.createToken(response);
 
@@ -53,5 +52,13 @@ export class MemberService {
 
   public async getMember(): Promise<string> {
     return 'getMember executed';
+  }
+
+  public async getAllMembersByAdmin(): Promise<string> {
+    return 'getAllMembersByAdmin executed!';
+  }
+
+  public async updateMemberByAdmin(): Promise<string> {
+    return 'updateMemberByAdmin executed!';
   }
 }
