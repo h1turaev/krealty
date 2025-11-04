@@ -10,7 +10,7 @@
   "monorepo": true,
   "root": "apps/krealty-api",
   "projects": {
-    "krealty": {
+    "krealty-api": {
       "type": "application",
       "root": "apps/krealty-api",
       "entryFile": "main",
