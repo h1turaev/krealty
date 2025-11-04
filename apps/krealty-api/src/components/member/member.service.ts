@@ -15,8 +15,8 @@ export class MemberService {
       const result = await this.memberModel.create(input);
       return result;
     } catch (err) {
-      console.error('Error Service Model signup:', err);
-      throw new BadRequestException(err);
+      console.error('Error Service.model signup:', err.message);
+      throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
     }
   }
 

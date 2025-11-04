@@ -23,7 +23,6 @@ export class MemberResolver {
   public async login(@Args('input') input: LoginInput): Promise<Member> {
     try {
       console.log('mutation: login');
-      console.log('input:', input);
       return this.memberService.login(input);
     } catch (err) {
       console.error('Error during login:', err);
