@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Welcome to KRealty API!';
-  }
+
+  async SayHello(): Promise<string> {
+  return 'GraphQL API is running!';
+}
 }
