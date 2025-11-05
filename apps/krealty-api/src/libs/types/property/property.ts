@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
 import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
-
+import { Member } from '../../dto/member/member';
 
 //DTO — Data Transfer Object: tashqi dunyo (client ↔ server) bilan ma’lumot
 
@@ -78,4 +78,7 @@ export class Property {
 
   @Field(() => Date)
   updatedAt: Date;
+
+  @Field(() => Member, { nullable: true })
+  memberData?: Member;
 }
