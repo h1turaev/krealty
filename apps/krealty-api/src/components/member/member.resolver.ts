@@ -10,11 +10,13 @@ import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Resolver()
 export class MemberResolver {
   constructor(private readonly memberService: MemberService) {}
 
+  /**======================================SIGNUP API============================================== */
   @Mutation(() => Member)
   public async signup(@Args('input') input: MemberInput): Promise<Member> {
     try {
@@ -26,6 +28,7 @@ export class MemberResolver {
     }
   }
 
+  /**======================================LOGIN API============================================== */
   @Mutation(() => Member)
   public async login(@Args('input') input: LoginInput): Promise<Member> {
     try {
@@ -37,6 +40,7 @@ export class MemberResolver {
     }
   }
 
+  /**======================================UPDATE MEMBER API============================================== */
   @UseGuards(AuthGuard)
   @Mutation(() => Member)
   public async updateMember(
@@ -48,6 +52,7 @@ export class MemberResolver {
     return this.memberService.updateMember(memberId, input);
   }
 
+  /**======================================CHECK AUTH API============================================== */
   @UseGuards(AuthGuard)
   @Query(() => String)
   public async checkAuth(@AuthMember('memberNick') memberNick: string): Promise<string> {
@@ -56,6 +61,7 @@ export class MemberResolver {
     return `Hi ${memberNick}, you are authenticated!`;
   }
 
+  /**======================================CHECK AUTH ROLES API============================================== */
   @Roles(MemberType.USER, MemberType.AGENT)
   @UseGuards(RolesGuard) // bu yerda AuthGuard ni ishlatamiz
   @Query(() => String)
@@ -64,13 +70,16 @@ export class MemberResolver {
     console.log('memberNick:', authMember.memberNick);
     return `Hi ${authMember.memberNick}, you are ${authMember.memberType} (memberId: ${authMember._id})!`;
   }
-  
-  @Query(() => String)
-  public async getMember(): Promise<string> {
+
+  /**======================================GET MEMBER API============================================== */
+  @Query(() => Member)
+  public async getMember(@Args('memberId') input: string): Promise<Member> {
     console.log('getMember: query');
-    return this.memberService.getMember();
+    const targetId = shapeIntoMongoObjectId(input); 
+    return this.memberService.getMember(targetId);
   }
 
+  /**======================================GET ALL MEMBERS BY ADMIN API============================================== */
   @Roles(MemberType.ADMIN)
   @UseGuards(RolesGuard)
   @Mutation(() => String)
@@ -78,6 +87,7 @@ export class MemberResolver {
     return this.memberService.getAllMembersByAdmin();
   }
 
+  /**======================================UPDATE MEMBER BY ADMIN API============================================== */
   @Mutation(() => String)
   public async updateMemberByAdmin(): Promise<string> {
     console.log('Mutation: updateMemberByAdmin');
