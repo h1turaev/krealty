@@ -70,7 +70,7 @@ export class MemberService {
         { new: true },
       )
       .exec();
-    if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED);
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
     result.accessToken = await this.authService.createToken(result);
     return result;
   }
