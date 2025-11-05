@@ -1,7 +1,12 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { InternalServerErrorException, UseGuards } from '@nestjs/common';
-import { AgentsInquiry, LoginInput, MemberInput } from '../../libs/dto/member/member.input';
+import {
+  AgentsInquiry,
+  LoginInput,
+  MemberInput,
+  MembersInquiry,
+} from '../../libs/dto/member/member.input';
 import { Member, Members } from '../../libs/dto/member/member';
 import { ObjectId } from 'mongoose';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -25,7 +30,7 @@ export class MemberResolver {
       return this.memberService.signup(input);
     } catch (err) {
       console.error('Error during signup:', err);
-      throw new InternalServerErrorException(err);
+      throw await new InternalServerErrorException(err);
     }
   }
 
@@ -37,7 +42,7 @@ export class MemberResolver {
       return this.memberService.login(input);
     } catch (err) {
       console.error('Error during login:', err);
-      throw new InternalServerErrorException(err);
+      throw await new InternalServerErrorException(err);
     }
   }
 
@@ -50,7 +55,7 @@ export class MemberResolver {
   ): Promise<Member> {
     console.log('Mutation: updateMember');
     delete input._id;
-    return this.memberService.updateMember(memberId, input);
+    return await this.memberService.updateMember(memberId, input);
   }
 
   /**======================================CHECK AUTH API============================================== */
@@ -82,7 +87,7 @@ export class MemberResolver {
     console.log('getMember: query');
     console.log('memberId (auth):', memberId);
     const targetId = shapeIntoMongoObjectId(input); // string ni ObjectId ga aylantiramiz
-    return this.memberService.getMember(memberId, targetId); // memberId ni service ga uzatamiz
+    return await this.memberService.getMember(memberId, targetId); // memberId ni service ga uzatamiz
   }
 
   /**======================================GET AGENTS API============================================== */
@@ -93,21 +98,21 @@ export class MemberResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Members> {
     console.log('getAgents: query');
-    return this.memberService.getAgents(memberId, input);
+    return await this.memberService.getAgents(memberId, input);
   }
 
   /**======================================GET ALL MEMBERS BY ADMIN API============================================== */
   @Roles(MemberType.ADMIN)
   @UseGuards(RolesGuard)
-  @Mutation(() => String)
-  public async getAllMembersByAdmin(): Promise<string> {
-    return this.memberService.getAllMembersByAdmin();
+  @Query(() => Members)
+  public async getAllMembersByAdmin(@Args('input') input: MembersInquiry): Promise<Members> {
+    return await this.memberService.getAllMembersByAdmin(input);
   }
 
   /**======================================UPDATE MEMBER BY ADMIN API============================================== */
   @Mutation(() => String)
   public async updateMemberByAdmin(): Promise<string> {
     console.log('Mutation: updateMemberByAdmin');
-    return this.memberService.updateMemberByAdmin();
+    return await this.memberService.updateMemberByAdmin();
   }
 }
