@@ -19,5 +19,6 @@ import { ViewModule } from '../view/view.module';
     ViewModule, // ViewService ni ishlatish uchun import qilamiz
   ],
   providers: [MemberResolver, MemberService],
+  exports: [MemberService], // MemberService ni boshqa modullarga eksport qilamiz
 })
 export class MemberModule {}
