@@ -8,8 +8,9 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId, getSerialForImage } from '../../libs/config';
-import { Property } from '../../libs/types/property/property';
-import { PropertyInput } from '../../libs/types/property/property.input';
+import { Property } from '../../libs/dto/property/property';
+import { PropertyInput } from '../../libs/dto/property/property.input';
+import { PropertyUpdate } from '../../libs/dto/property/property.update';
 
 @Resolver()
 export class PropertyResolver {
@@ -38,5 +39,18 @@ export class PropertyResolver {
     console.log('Query: getProperty');
     const propertyId = shapeIntoMongoObjectId(input);
     return await this.propertyService.getProperty(memberId, propertyId);
+  }
+
+  //===================================== UPDATE PROPERTY =====================================//
+  @Roles(MemberType.AGENT)
+  @UseGuards(RolesGuard)
+  @Mutation(() => Property)
+  public async updateProperty(
+    @Args('input') input: PropertyUpdate,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Property> {
+    console.log('Mutation: updateProperty');
+    input._id = shapeIntoMongoObjectId(input._id);
+    return await this.propertyService.updateProperty(memberId, input);
   }
 }
