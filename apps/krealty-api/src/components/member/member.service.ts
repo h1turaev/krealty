@@ -8,12 +8,15 @@ import { MemberStatus } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { T } from '../../libs/types/common';
+import { ViewService } from '../view/view.service';
+import { ViewGroup } from '../../libs/enums/view.enum';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectModel('Member') private readonly memberModel: Model<Member>,
     private authService: AuthService,
+    private viewService: ViewService,
   ) {}
 
   /**======================================SIGNUP API============================================== */
@@ -68,15 +71,28 @@ export class MemberService {
   }
 
   /**======================================GET MEMBER API============================================== */
-  public async getMember(targetId: ObjectId): Promise<Member> {
+  public async getMember(memberId: ObjectId, targetId: ObjectId): Promise<Member> {
     const search: T = {
       _id: targetId,
       memberStatus: {
         $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK], // DELETE bo'lmaganlarni qidiramiz
       },
     };
-    const targetMember = await this.memberModel.findOne(search).exec(); // faqat bitta hujjat qaytadi
+    const targetMember = await this.memberModel.findOne(search).lean().exec(); // faqat bitta hujjat qaytadi
     if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    //viewga taluqli logic
+    if (memberId) {
+      const viewInput = { memberId: memberId, viewRefId: targetId, viewGroup: ViewGroup.MEMBER };
+      const newView = await this.viewService.recordView(viewInput);
+      if (newView) {
+        await this.memberModel
+          .findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true })
+          .exec();
+        targetMember.memberViews++;
+      }
+    }
+
     return targetMember;
   }
 
