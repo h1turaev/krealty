@@ -5,7 +5,7 @@ export enum MemberType {
   ADMIN = 'ADMIN',
   AGENT = 'AGENT',
 }
-registerEnumType(MemberType, { name: 'MemberType' }); // This one is needed for GraphQL schema
+registerEnumType(MemberType, { name: 'MemberType' });
 
 export enum MemberStatus {
   ACTIVE = 'ACTIVE',
