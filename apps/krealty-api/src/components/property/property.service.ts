@@ -14,7 +14,7 @@ import {
   PropertiesInquiry,
   PropertyInput,
 } from '../../libs/dto/property/property.input';
-import moment from 'moment';
+import * as moment from 'moment';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 
@@ -89,7 +89,7 @@ export class PropertyService {
     const search: T = {
       _id: input._id,
       memberId: memberId,
-      propertyStatus: PropertyStatus.ACTIVE,
+      propertyStatus: { $ne: PropertyStatus.DELETE },
     };
 
     if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
@@ -250,5 +250,58 @@ export class PropertyService {
     if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
+  }
+
+  // ====================================== UPDATE PROPERTY BY ADMIN =====================================//
+  //===================================== UPDATE PROPERTY BY ADMIN =====================================//
+  public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
+    let { propertyStatus, soldAt, deletedAt } = input;
+
+    const property = await this.propertyModel.findById(input._id).exec();
+    if (!property) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    const previousStatus = property.propertyStatus;
+    const wasActive = previousStatus === PropertyStatus.ACTIVE;
+    const isActive = propertyStatus === PropertyStatus.ACTIVE;
+
+    if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
+    if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
+    if (isActive) {
+      soldAt = null;
+      deletedAt = null;
+    }
+
+    const result = await this.propertyModel
+      .findByIdAndUpdate(input._id, { ...input, soldAt, deletedAt }, { new: true })
+      .exec();
+
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if (wasActive && !isActive) {
+      await this.memberService.memberStatsEditor({
+        _id: result.memberId,
+        targetKey: 'memberProperties',
+        modifier: -1,
+      });
+    }
+
+    if (!wasActive && isActive) {
+      await this.memberService.memberStatsEditor({
+        _id: result.memberId,
+        targetKey: 'memberProperties',
+        modifier: 1,
+      });
+    }
+
+    return result;
+  }
+  
+  //=====================================REMOVE PROPERTY BY ADMIN=====================================//
+  public async removePropertyByAdmin(propertyId: ObjectId): Promise<Property> {
+    const search: T = { _id: propertyId, propertyStatus: PropertyStatus.DELETE };
+    const result = await this.propertyModel.findOneAndDelete(search).exec();
+    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+    
+    return result;
   }
 }

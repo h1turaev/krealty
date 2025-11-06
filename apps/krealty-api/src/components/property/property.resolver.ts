@@ -93,4 +93,24 @@ export class PropertyResolver {
     console.log('Query: getAllPropertiesByAdmin');
     return await this.propertyService.getAllPropertiesByAdmin(input);
   }
+
+  //======================================UPDATE PROPERTY BY ADMIN=====================================//
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation(() => Property)
+  public async updatePropertyByAdmin(@Args('input') input: PropertyUpdate): Promise<Property> {
+    console.log('Mutation: updatePropertyByAdmin');
+    input._id = shapeIntoMongoObjectId(input._id);
+    return await this.propertyService.updatePropertyByAdmin(input);
+  }
+
+  //=====================================REMOVE PROPERTY BY ADMIN=====================================//
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation(() => Property)
+  public async removePropertyByAdmin(@Args('propertyId') input: string): Promise<Property> {
+    console.log('Mutation: removePropertyByAdmin');
+    const propertyId = shapeIntoMongoObjectId(input);
+    return await this.propertyService.removePropertyByAdmin(propertyId);
+  }
 }
