@@ -8,6 +8,17 @@ export const availableAgentSorts = [
   'memberRank',
 ];
 export const availableMemberSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
+//bu yerda nima ish qildik: propertyBarter va propertyRent ni alohida arrayga oldik, chunki queryda bu ikkisi bo'lishi mumkin
+export const availableOptions = ['propertyBarter', 'propertyRent'];
+// va shu ikkisi bo'yicha filter qilish kerak bo'ladi, boshqa maydonlar bo'yicha emas
+export const availablePropertySorts = [
+  'createdAt',
+  'updatedAt',
+  'propertyLikes',
+  'propertyViews',
+  'propertyRank',
+  'propertyPrice',
+];
 
 // IMAGE CONFIGURATION (config.js)
 import { v4 as uuidv4 } from 'uuid';
@@ -21,4 +32,13 @@ export const getSerialForImage = (filename: string) => {
 
 export const shapeIntoMongoObjectId = (target: any) => {
   return typeof target === 'string' ? new ObjectId(target) : target;
+};
+
+export const lookupMember = {
+  $lookup: {
+    from: 'members',
+    localField: 'memberId',
+    foreignField: '_id',
+    as: 'memberData',
+  },
 };
