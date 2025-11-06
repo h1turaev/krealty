@@ -170,14 +170,14 @@ export class MemberService {
   /**======================================MEMBER STATS EDITOR API============================================== */
   public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
     console.log('executed memberStatsEditor service');
-    const { _id, targetKey, modifier } = input; // bu yerda targetKey ni dynamic qilish uchun shunday qildik
+    const { _id, targetKey, modifier } = input;
     return await this.memberModel
       .findOneAndUpdate(
-        _id, // qaysi hujjatni yangilash kerakligini bildiradi
+        { _id },
         {
-          $inc: { [targetKey]: modifier }, // targetKey ni dynamic qilish uchun shunday qildik
+          $inc: { [targetKey]: modifier },
         },
-        { new: true }, // yangilangan hujjatni qaytaradi
+        { new: true },
       )
       .exec();
   }
