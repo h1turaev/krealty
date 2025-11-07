@@ -88,7 +88,6 @@ export class MemberResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Member> {
     console.log('getMember: query');
-    console.log('memberId (auth):', memberId);
     const targetId = shapeIntoMongoObjectId(input); // string ni ObjectId ga aylantiramiz
     return await this.memberService.getMember(memberId, targetId); // memberId ni service ga uzatamiz
   }

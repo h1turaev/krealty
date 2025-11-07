@@ -18,11 +18,18 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
+import {
+  lookupAuthMemberLiked,
+  lookupAuthMemberFollowed,
+  shapeIntoMongoObjectId,
+} from '../../libs/config';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectModel('Member') private readonly memberModel: Model<Member>,
+    @InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
     private authService: AuthService,
     private viewService: ViewService,
     private likeService: LikeService,
@@ -109,9 +116,22 @@ export class MemberService {
       };
 
       targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
+      // meFollowed
+      targetMember.meFollowed = await this.checkSubscription(memberId, targetId);
     }
 
     return targetMember;
+  }
+
+  // /**======================================CHECK SUBSCRIPTION API============================================== */
+  public async checkSubscription(
+    followerId: ObjectId,
+    followingId: ObjectId,
+  ): Promise<MeFollowed[]> {
+    const result = await this.followModel
+      .findOne({ followingId: followingId, followerId: followerId })
+      .exec();
+    return result ? [{ followerId: followerId, followingId: followingId, myFollowing: true }] : [];
   }
 
   /**======================================GET AGENTS API============================================== */
@@ -122,7 +142,6 @@ export class MemberService {
     const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
     if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
-    console.log('match:', match);
 
     const result = await this.memberModel
       .aggregate([
@@ -130,12 +149,21 @@ export class MemberService {
         { $sort: sort },
         {
           $facet: {
-            list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }], // pagination uchun
-            metaCounter: [{ $count: 'total' }], // total counter uchun
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookupAuthMemberLiked(shapeIntoMongoObjectId(memberId)),
+              lookupAuthMemberFollowed({
+                followerId: shapeIntoMongoObjectId(memberId),
+                followingId: '$_id',
+              }),
+            ],
+            metaCounter: [{ $count: 'total' }],
           },
         },
       ])
       .exec();
+
     if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
