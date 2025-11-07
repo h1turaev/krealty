@@ -1,17 +1,23 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { BoardArticleService } from './board-article.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { BoardArticle } from '../../libs/dto/board-article/board-article';
-import { BoardArticleInput } from '../../libs/dto/board-article/board-article.input';
+import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
+import {
+  BoardArticleInput,
+  BoardArticlesInquiry,
+} from '../../libs/dto/board-article/board-article.input';
 import { ObjectId } from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { UseGuards } from '@nestjs/common';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
 
 @Resolver()
 export class BoardArticleResolver {
   constructor(private readonly boardArticleService: BoardArticleService) {}
 
-  //============================== Create Board Article ==============================//
+  //============================== CREATE BOARD ARTICLE API ==============================//
   @UseGuards(AuthGuard)
   @Mutation(() => BoardArticle)
   public async createBoardArticle(
@@ -20,5 +26,40 @@ export class BoardArticleResolver {
   ): Promise<BoardArticle> {
     console.log('Mutation: createBoardArticle');
     return await this.boardArticleService.createBoardArticle(memberId, input);
+  }
+
+  //============================== GET BOARD ARTICLE API ==============================//
+  @UseGuards(WithoutGuard)
+  @Query(() => BoardArticle)
+  public async getBoardArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Query: getBoardArticle');
+    const articleId = shapeIntoMongoObjectId(input);
+    return await this.boardArticleService.getBoardArticle(memberId, articleId);
+  }
+
+  //============================== UPDATE BOARD ARTICLE API ==============================//
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async updateBoardArticle(
+    @Args('input') input: BoardArticleUpdate,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: updateBoardArticle');
+    input._id = shapeIntoMongoObjectId(input._id);
+    return await this.boardArticleService.updateBoardArticle(memberId, input);
+  }
+
+  //============================== GET BOARD ARTICLES API ==============================//
+  @UseGuards(WithoutGuard)
+  @Query(() => BoardArticles)
+  public async getBoardArticles(
+    @Args('input') input: BoardArticlesInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticles> {
+    console.log('Query: getBoardArticles');
+    return await this.boardArticleService.getBoardArticles(memberId, input);
   }
 }
