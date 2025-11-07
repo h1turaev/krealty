@@ -16,6 +16,7 @@ import {
   PropertyInput,
 } from '../../libs/dto/property/property.input';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class PropertyResolver {
@@ -112,5 +113,17 @@ export class PropertyResolver {
     console.log('Mutation: removePropertyByAdmin');
     const propertyId = shapeIntoMongoObjectId(input);
     return await this.propertyService.removePropertyByAdmin(propertyId);
+  }
+
+  //===================================== LIKE TARGET PROPERTY =====================================//
+  @UseGuards(AuthGuard)
+  @Mutation(() => Property)
+  public async likeTargetProperty(
+    @Args('propertyId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Property> {
+    console.log('Mutation: likeTargetProperty');
+    const likeRefId = shapeIntoMongoObjectId(input);
+    return await this.propertyService.likeTargetProperty(memberId, likeRefId);
   }
 }
