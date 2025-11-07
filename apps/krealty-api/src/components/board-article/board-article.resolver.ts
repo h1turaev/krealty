@@ -103,4 +103,16 @@ export class BoardArticleResolver {
     const articleId = shapeIntoMongoObjectId(input);
     return await this.boardArticleService.removeBoardArticleByAdmin(articleId);
   }
+
+  //============================== LIKE TARGET BOARD ARTICLE API ==============================//
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async likeTargetBoardArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: likeTargetBoardArticle');
+    const likeRefId = shapeIntoMongoObjectId(input);
+    return await this.boardArticleService.likeTargetBoardArticle(memberId, likeRefId);
+  }
 }
