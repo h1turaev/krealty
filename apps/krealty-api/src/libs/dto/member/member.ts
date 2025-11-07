@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
 import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
+import { MeLiked } from '../like/like';
 //DTO — Data Transfer Object: tashqi dunyo (client ↔ server) bilan ma’lumot
 
 @ObjectType()
@@ -81,6 +82,9 @@ export class Member {
 
   @Field(() => String, { nullable: true })
   accessToken?: string; // nullable optional
+
+  @Field(() => [MeLiked], { nullable: true })
+  meLiked?: MeLiked[];
 }
 
 @ObjectType()
