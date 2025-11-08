@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { KrealtyBatchModule } from './../src/krealty-batch.module';
+import { KrealtyBatchModule } from '../src/krealty-batch.module';
 
 describe('KrealtyBatchController (e2e)', () => {
   let app: INestApplication;
