@@ -5,7 +5,7 @@ import { Model, ObjectId } from 'mongoose';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { T } from '../../libs/types/common';
 import { Message } from '../../libs/enums/common.enum';
-import { lookupFavorite, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupFavorite } from '../../libs/config';
 import { Properties } from '../../libs/dto/property/property';
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -53,7 +53,7 @@ export class LikeService {
     input: OrdinaryInquiry,
   ): Promise<Properties> {
     const { page, limit } = input;
-    const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: shapeIntoMongoObjectId(memberId) };
+    const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
 
     const data: T = await this.likeModel
       .aggregate([

@@ -19,11 +19,7 @@ import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
-import {
-  lookupAuthMemberLiked,
-  lookupAuthMemberFollowed,
-  shapeIntoMongoObjectId,
-} from '../../libs/config';
+import { lookupAuthMemberLiked, lookupAuthMemberFollowed } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -152,9 +148,9 @@ export class MemberService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              lookupAuthMemberLiked(shapeIntoMongoObjectId(memberId)),
+              lookupAuthMemberLiked(memberId),
               lookupAuthMemberFollowed({
-                followerId: shapeIntoMongoObjectId(memberId),
+                followerId: memberId,
                 followingId: '$_id',
               }),
             ],
