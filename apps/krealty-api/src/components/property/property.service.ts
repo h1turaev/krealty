@@ -1,12 +1,9 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as moment from 'moment';
 import { Model, ObjectId } from 'mongoose';
-import { MemberService } from '../member/member.service';
-import { Direction, Message } from '../../libs/enums/common.enum';
-import { ViewService } from '../view/view.service';
-import { PropertyStatus } from '../../libs/enums/property.enum';
-import { ViewGroup } from '../../libs/enums/view.enum';
-import { StatisticModifier, T } from '../../libs/types/common';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { LikeInput } from '../../libs/dto/like/like.input';
 import { Properties, Property } from '../../libs/dto/property/property';
 import {
   AgentPropertiesInquiry,
@@ -15,12 +12,18 @@ import {
   PropertiesInquiry,
   PropertyInput,
 } from '../../libs/dto/property/property.input';
-import * as moment from 'moment';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
-import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
-import { LikeService } from '../like/like.service';
-import { LikeInput } from '../../libs/dto/like/like.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
+import { PropertyStatus } from '../../libs/enums/property.enum';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { StatisticModifier, T } from '../../libs/types/common';
+import { FollowService } from '../follow/follow.service';
+import { LikeService } from '../like/like.service';
+import { MemberService } from '../member/member.service';
+import { NotificationService } from '../notification/notification.service';
+import { ViewService } from '../view/view.service';
 
 @Injectable()
 export class PropertyService {
@@ -29,6 +32,8 @@ export class PropertyService {
     private memberService: MemberService, // Inject MemberService to update member stats
     private viewService: ViewService, // Inject ViewService to handle views
     private likeService: LikeService,
+    private notificationService: NotificationService,
+    private followService: FollowService,
   ) {}
 
   //===================================== CREATE PROPERTY =====================================//
@@ -40,6 +45,22 @@ export class PropertyService {
         targetKey: 'memberProperties',
         modifier: 1,
       });
+
+      // Create notifications for all followers
+      const followers = await this.followService.getFollowerIds(result.memberId);
+      if (followers.length > 0) {
+        const member = await this.memberService.getMember(null, result.memberId);
+        const notificationTitle = `${member.memberNick} added a new property: ${result.propertyTitle}`;
+
+        await this.notificationService.createNotificationsForFollowers(result.memberId, followers, {
+          notificationType: NotificationType.PROPERTY,
+          notificationGroup: NotificationGroup.PROPERTY,
+          notificationTitle: notificationTitle,
+          notificationDesc: `New property available: ${result.propertyTitle}`,
+          propertyId: result._id,
+        });
+      }
+
       return result;
     } catch (err) {
       console.log('Error, Service.model:', err.message);
