@@ -1,17 +1,17 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { MemberService } from '../member/member.service';
 import { Model, ObjectId } from 'mongoose';
-import { Direction, Message } from '../../libs/enums/common.enum';
-import { Follower, Followers, Following, Followings } from '../../libs/dto/follow/follow';
-import { FollowInquiry } from '../../libs/dto/follow/follow.input';
-import { T } from '../../libs/types/common';
 import {
   lookupAuthMemberFollowed,
   lookupAuthMemberLiked,
   lookupFollowerData,
   lookupFollowingData,
 } from '../../libs/config';
+import { Follower, Followers, Following, Followings } from '../../libs/dto/follow/follow';
+import { FollowInquiry } from '../../libs/dto/follow/follow.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { T } from '../../libs/types/common';
+import { MemberService } from '../member/member.service';
 
 @Injectable()
 export class FollowService {
@@ -51,10 +51,12 @@ export class FollowService {
     const targetMember = await this.memberService.getMember(null, followingId);
     if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-    const result = await this.followModel.findOneAndDelete({
-      followingId: followingId,
-      followerId: followerId,
-    }).exec(); 
+    const result = await this.followModel
+      .findOneAndDelete({
+        followingId: followingId,
+        followerId: followerId,
+      })
+      .exec();
 
     if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
@@ -155,5 +157,16 @@ export class FollowService {
 
     if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
     return result[0];
+  }
+
+  // ============================== GET FOLLOWER IDS API ==============================//
+  public async getFollowerIds(followingId: ObjectId): Promise<ObjectId[]> {
+    const followers = await this.followModel
+      .find({ followingId: followingId })
+      .select('followerId')
+      .lean()
+      .exec();
+
+    return followers.map((f) => f.followerId);
   }
 }
