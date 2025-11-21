@@ -1,23 +1,23 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { MemberService } from '../member/member.service';
-import { ViewService } from '../view/view.service';
-import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import { Model, ObjectId } from 'mongoose';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import {
   AllBoardArticlesInquiry,
   BoardArticleInput,
   BoardArticlesInquiry,
 } from '../../libs/dto/board-article/board-article.input';
-import { Direction, Message } from '../../libs/enums/common.enum';
-import { StatisticModifier, T } from '../../libs/types/common';
-import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
-import { ViewGroup } from '../../libs/enums/view.enum';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
-import { shapeIntoMongoObjectId, lookupMember, lookupAuthMemberLiked } from '../../libs/config';
-import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
+import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { StatisticModifier, T } from '../../libs/types/common';
+import { LikeService } from '../like/like.service';
+import { MemberService } from '../member/member.service';
+import { ViewService } from '../view/view.service';
 
 @Injectable()
 export class BoardArticleService {
@@ -224,6 +224,26 @@ export class BoardArticleService {
         modifier: 1,
       });
     }
+
+    return result;
+  }
+
+  // ============================== REMOVE BOARD ARTICLE API ==============================//
+  public async removeBoardArticle(memberId: ObjectId, articleId: ObjectId): Promise<BoardArticle> {
+    const search: T = {
+      _id: articleId,
+      memberId: memberId,
+      articleStatus: BoardArticleStatus.ACTIVE,
+    };
+    const result = await this.boardArticleModel.findOneAndDelete(search).exec();
+    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+    // Update member stats
+    await this.memberService.memberStatsEditor({
+      _id: memberId,
+      targetKey: 'memberArticles',
+      modifier: -1,
+    });
 
     return result;
   }

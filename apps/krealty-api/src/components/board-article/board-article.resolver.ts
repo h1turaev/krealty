@@ -1,21 +1,21 @@
-import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
-import { BoardArticleService } from './board-article.service';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ObjectId } from 'mongoose';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import {
   AllBoardArticlesInquiry,
   BoardArticleInput,
   BoardArticlesInquiry,
 } from '../../libs/dto/board-article/board-article.input';
-import { ObjectId } from 'mongoose';
-import { AuthMember } from '../auth/decorators/authMember.decorator';
-import { UseGuards } from '@nestjs/common';
-import { WithoutGuard } from '../auth/guards/without.guard';
-import { shapeIntoMongoObjectId } from '../../libs/config';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
 import { MemberType } from '../../libs/enums/member.enum';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { BoardArticleService } from './board-article.service';
 
 @Resolver()
 export class BoardArticleResolver {
@@ -89,6 +89,18 @@ export class BoardArticleResolver {
     console.log('Mutation: updateBoardArticleByAdmin');
     input._id = shapeIntoMongoObjectId(input._id);
     return await this.boardArticleService.updateBoardArticleByAdmin(input);
+  }
+
+  //============================== REMOVE BOARD ARTICLE API ==============================//
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async removeBoardArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: removeBoardArticle');
+    const articleId = shapeIntoMongoObjectId(input);
+    return await this.boardArticleService.removeBoardArticle(memberId, articleId);
   }
 
   //============================== ADMIN: REMOVE BOARD ARTICLE API ==============================//
