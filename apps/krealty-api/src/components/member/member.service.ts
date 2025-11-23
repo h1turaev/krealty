@@ -1,25 +1,25 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
+import { lookupAuthMemberFollowed, lookupAuthMemberLiked } from '../../libs/config';
+import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
+import { LikeInput } from '../../libs/dto/like/like.input';
+import { Member, Members } from '../../libs/dto/member/member';
 import {
   AgentsInquiry,
   LoginInput,
   MemberInput,
   MembersInquiry,
 } from '../../libs/dto/member/member.input';
-import { Member, Members } from '../../libs/dto/member/member';
-import { Direction, Message } from '../../libs/enums/common.enum';
-import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
-import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { StatisticModifier, T } from '../../libs/types/common';
-import { ViewService } from '../view/view.service';
-import { ViewGroup } from '../../libs/enums/view.enum';
-import { LikeService } from '../like/like.service';
-import { LikeInput } from '../../libs/dto/like/like.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
-import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
-import { lookupAuthMemberLiked, lookupAuthMemberFollowed } from '../../libs/config';
+import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { StatisticModifier, T } from '../../libs/types/common';
+import { AuthService } from '../auth/auth.service';
+import { LikeService } from '../like/like.service';
+import { ViewService } from '../view/view.service';
 
 @Injectable()
 export class MemberService {
@@ -133,11 +133,28 @@ export class MemberService {
   /**======================================GET AGENTS API============================================== */
 
   public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
-    const { text } = input.search;
-    const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE };
+    const { text, memberType, memberStatus } = input.search;
+    const match: T = {};
     const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
-    if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+    if (!memberType) {
+      match.memberType = MemberType.AGENT;
+    } else {
+      match.memberType = memberType;
+    }
+
+    if (!memberStatus) {
+      match.memberStatus = MemberStatus.ACTIVE;
+    } else {
+      match.memberStatus = memberStatus;
+    }
+
+    if (text) {
+      match.$or = [
+        { memberNick: { $regex: new RegExp(text, 'i') } },
+        { memberFullName: { $regex: new RegExp(text, 'i') } },
+      ];
+    }
 
     const result = await this.memberModel
       .aggregate([
@@ -163,6 +180,20 @@ export class MemberService {
     if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
+  }
+
+  /**======================================GET ADMIN API============================================== */
+  public async getAdmin(): Promise<Member> {
+    const admin = await this.memberModel
+      .findOne({
+        memberType: MemberType.ADMIN,
+        memberStatus: MemberStatus.ACTIVE,
+      })
+      .lean()
+      .exec();
+
+    if (!admin) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    return admin;
   }
 
   /**======================================GET ALL MEMBERS BY ADMIN API============================================== */

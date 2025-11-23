@@ -1,25 +1,25 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { MemberService } from './member.service';
 import { InternalServerErrorException, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { createWriteStream } from 'fs';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import { ObjectId } from 'mongoose';
+import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { Member, Members } from '../../libs/dto/member/member';
 import {
   AgentsInquiry,
   LoginInput,
   MemberInput,
   MembersInquiry,
 } from '../../libs/dto/member/member.input';
-import { Member, Members } from '../../libs/dto/member/member';
-import { ObjectId } from 'mongoose';
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { MemberType } from '../../libs/enums/member.enum';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
-import { WithoutGuard } from '../auth/guards/without.guard';
-import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
-import { GraphQLUpload, FileUpload } from 'graphql-upload';
+import { MemberType } from '../../libs/enums/member.enum';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { MemberService } from './member.service';
 
 @Resolver()
 export class MemberResolver {
@@ -101,6 +101,14 @@ export class MemberResolver {
   ): Promise<Members> {
     console.log('getAgents: query');
     return await this.memberService.getAgents(memberId, input);
+  }
+
+  /**======================================GET ADMIN API============================================== */
+  @UseGuards(WithoutGuard)
+  @Query(() => Member)
+  public async getAdmin(): Promise<Member> {
+    console.log('Query: getAdmin');
+    return await this.memberService.getAdmin();
   }
 
   /**======================================GET ALL MEMBERS BY ADMIN API============================================== */

@@ -1,8 +1,8 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 import { availableAgentSorts, availableMemberSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
+import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 
 @InputType()
 export class MemberInput {
@@ -44,9 +44,17 @@ export class LoginInput {
 
 @InputType()
 class AISearch {
-  @IsNotEmpty()
+  @IsOptional()
   @Field(() => String, { nullable: true })
   text?: string;
+
+  @IsOptional()
+  @Field(() => MemberType, { nullable: true })
+  memberType?: MemberType;
+
+  @IsOptional()
+  @Field(() => MemberStatus, { nullable: true })
+  memberStatus?: MemberStatus;
 }
 
 @InputType()

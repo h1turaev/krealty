@@ -1,28 +1,32 @@
 import { Logger } from '@nestjs/common';
-import { OnGatewayInit, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
 
-@WebSocketGateway({ transports: ['websocket'], secure: false })
-export class SocketGateway implements OnGatewayInit {
-	private logger: Logger = new Logger('SocketEventsGateway');
-	private summaryClient: number = 0;
+@WebSocketGateway({ transports: ['websocket'], secure: false, cors: true })
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer()
+  server: Server;
 
-	public afterInit(server: Server) {
-		this.logger.log(`WebSocket Server Initialized total: ${this.summaryClient}`);
-	}
+  private logger: Logger = new Logger('SocketEventsGateway');
+  private summaryClient: number = 0;
 
-	handleConnection(client: WebSocket, ...args: any[]) {
-		this.summaryClient++;
-		this.logger.log(`== Client connected total: ${this.summaryClient} ==`);
-	}
+  public afterInit(server: Server) {
+    this.logger.log(`WebSocket Server Initialized total: ${this.summaryClient}`);
+  }
 
-	handleDisconnect(client: WebSocket) {
-		this.summaryClient--;
-		this.logger.log(`== Client disconnected left total: ${this.summaryClient} ==`);
-	}
+  handleConnection(client: WebSocket, ...args: any[]) {
+    this.summaryClient++;
+    this.logger.log(`== Client connected total: ${this.summaryClient} ==`);
+  }
 
-	@SubscribeMessage('message')
-	public handleMessage(client: WebSocket, payload: any): string {
-		return 'Hello world!';
-	}
+  handleDisconnect(client: WebSocket) {
+    this.summaryClient--;
+    this.logger.log(`== Client disconnected left total: ${this.summaryClient} ==`);
+  }
 }
