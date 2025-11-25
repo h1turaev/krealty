@@ -31,7 +31,10 @@ export class KrealtyBatchService {
   /**======================================BATCH UNREAD NOTIFICATIONS COUNT API============================================== */
   @Cron('0 0 * * *') // Har 24 soatda bir marta (har kuni 00:00 da)
   public async batchUnreadNotificationsCount(): Promise<void> {
-    console.log('Query: getUnreadNotificationsCount - Batch job started at', new Date().toISOString());
+    console.log(
+      'Query: getUnreadNotificationsCount - Batch job started at',
+      new Date().toISOString(),
+    );
 
     try {
       // Barcha aktiv memberlarni olish
@@ -69,7 +72,7 @@ export class KrealtyBatchService {
 
       console.log(
         `Query: getUnreadNotificationsCount - Batch job completed. ` +
-        `Total unread notifications: ${totalUnreadCount} across ${processedCount} members`,
+          `Total unread notifications: ${totalUnreadCount} across ${processedCount} members`,
       );
     } catch (error) {
       console.error('Error in batchUnreadNotificationsCount:', error.message);

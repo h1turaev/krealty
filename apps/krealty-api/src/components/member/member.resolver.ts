@@ -146,7 +146,7 @@ export class MemberResolver {
   public async imageUploader(
     @Args({ name: 'file', type: () => GraphQLUpload })
     { createReadStream, filename, mimetype }: FileUpload,
-    @Args('target') target: String,
+    @Args('target') target: string,
   ): Promise<string> {
     console.log('Mutation: imageUploader');
 
@@ -174,7 +174,7 @@ export class MemberResolver {
   public async imagesUploader(
     @Args('files', { type: () => [GraphQLUpload] })
     files: Promise<FileUpload>[],
-    @Args('target') target: String,
+    @Args('target') target: string,
   ): Promise<string[]> {
     console.log('Mutation: imagesUploader');
 

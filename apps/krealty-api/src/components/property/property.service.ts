@@ -117,7 +117,8 @@ export class PropertyService {
 
   //===================================== UPDATE PROPERTY =====================================//
   public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
-    let { propertyStatus, soldAt, deletedAt } = input;
+    const { propertyStatus } = input;
+    let { soldAt, deletedAt } = input;
     const search: T = {
       _id: input._id,
       memberId: memberId,
@@ -297,7 +298,8 @@ export class PropertyService {
 
   //===================================== UPDATE PROPERTY BY ADMIN =====================================//
   public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
-    let { propertyStatus, soldAt, deletedAt } = input;
+    const { propertyStatus } = input;
+    let { soldAt, deletedAt } = input;
 
     const property = await this.propertyModel.findById(input._id).exec();
     if (!property) throw new InternalServerErrorException(Message.NO_DATA_FOUND);

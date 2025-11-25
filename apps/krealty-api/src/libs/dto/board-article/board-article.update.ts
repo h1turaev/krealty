@@ -5,25 +5,25 @@ import { ObjectId } from 'mongoose';
 
 @InputType()
 export class BoardArticleUpdate {
-	@IsNotEmpty()
-	@Field(() => String)
-	_id: ObjectId;
+  @IsNotEmpty()
+  @Field(() => String)
+  _id: ObjectId;
 
-	@IsOptional()
-	@Field(() => BoardArticleStatus, { nullable: true })
-	articleStatus?: BoardArticleStatus;
+  @IsOptional()
+  @Field(() => BoardArticleStatus, { nullable: true })
+  articleStatus?: BoardArticleStatus;
 
-	@IsOptional()
-	@Length(3, 50)
-	@Field(() => String, { nullable: true })
-	articleTitle?: string;
+  @IsOptional()
+  @Length(3, 50)
+  @Field(() => String, { nullable: true })
+  articleTitle?: string;
 
-	@IsOptional()
-	@Length(3, 250)
-	@Field(() => String, { nullable: true })
-	articleContent?: string;
+  @IsOptional()
+  @Length(3, 250)
+  @Field(() => String, { nullable: true })
+  articleContent?: string;
 
-	@IsOptional()
-	@Field(() => String, { nullable: true })
-	articleImage?: string;
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  articleImage?: string;
 }

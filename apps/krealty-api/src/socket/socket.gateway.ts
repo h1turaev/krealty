@@ -6,7 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, WebSocket } from 'ws';
+import { Server } from 'ws';
 
 @WebSocketGateway({ transports: ['websocket'], secure: false, cors: true })
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -16,16 +16,16 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   private logger: Logger = new Logger('SocketEventsGateway');
   private summaryClient: number = 0;
 
-  public afterInit(server: Server) {
+  public afterInit() {
     this.logger.log(`WebSocket Server Initialized total: ${this.summaryClient}`);
   }
 
-  handleConnection(client: WebSocket, ...args: any[]) {
+  handleConnection() {
     this.summaryClient++;
     this.logger.log(`== Client connected total: ${this.summaryClient} ==`);
   }
 
-  handleDisconnect(client: WebSocket) {
+  handleDisconnect() {
     this.summaryClient--;
     this.logger.log(`== Client disconnected left total: ${this.summaryClient} ==`);
   }

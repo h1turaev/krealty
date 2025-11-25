@@ -3,8 +3,8 @@ import { ObjectId } from 'mongoose';
 import { ViewGroup } from '../../enums/view.enum';
 
 //DTO — Data Transfer Object: tashqi dunyo (client ↔ server) bilan ma’lumot
-// almashish uchun aniq tiplangan “kontrakt”. U faqat ma’lumot tuzilmasini 
-// ifodalaydi (logika yo‘q). NestJS’da DTO’lar orqali validation, transform, 
+// almashish uchun aniq tiplangan “kontrakt”. U faqat ma’lumot tuzilmasini
+// ifodalaydi (logika yo‘q). NestJS’da DTO’lar orqali validation, transform,
 // va API ni xavfsiz ajratish qilinadi.
 
 //MemberInput - foydalanuvchi ro'yxatdan o'tish uchun kerak bo'lgan ma'lumotlar

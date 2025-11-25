@@ -1,9 +1,9 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { ObjectId } from 'mongoose';
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
+import { ObjectId } from 'mongoose';
 import { availableOptions, availablePropertySorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
+import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
 
 //DTO — Data Transfer Object: tashqi dunyo (client ↔ server) bilan ma’lumot
 
@@ -117,11 +117,11 @@ class PISearch {
 
   @IsOptional()
   @Field(() => [Int], { nullable: true })
-  roomsList?: Number[];
+  roomsList?: number[];
 
   @IsOptional()
   @Field(() => [Int], { nullable: true })
-  bedsList?: Number[];
+  bedsList?: number[];
 
   @IsOptional()
   @IsIn(availableOptions, { each: true })

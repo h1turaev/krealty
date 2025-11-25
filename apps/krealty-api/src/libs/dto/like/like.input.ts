@@ -5,15 +5,15 @@ import { LikeGroup } from '../../enums/like.enum';
 
 @InputType()
 export class LikeInput {
-	@IsNotEmpty()
-	@Field(() => String)
-	memberId: ObjectId;
+  @IsNotEmpty()
+  @Field(() => String)
+  memberId: ObjectId;
 
-	@IsNotEmpty()
-	@Field(() => String)
-	likeRefId: ObjectId;
+  @IsNotEmpty()
+  @Field(() => String)
+  likeRefId: ObjectId;
 
-	@IsNotEmpty()
-	@Field(() => LikeGroup)
-	likeGroup: LikeGroup;
+  @IsNotEmpty()
+  @Field(() => LikeGroup)
+  likeGroup: LikeGroup;
 }
