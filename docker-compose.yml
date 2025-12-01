@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  krealty-api:
+    container_name: krealty-api
+    restart: always
+    image: node:18.20.8
+    ports:
+      - 4000:3007
+    volumes:
+      - ./:/usr/src/krealty
+    working_dir: /usr/src/krealty
+    environment:
+      - PORT_API=3007
+      - NODE_ENV=production
+    networks:
+      - monorepo-network
+    #PRODUCTION
+    command: bash -c "npm install --include=dev && npm run build && npm run start:prod"
+
+  krealty-batch:
+    container_name: krealty-batch
+    restart: unless-stopped
+    image: node:18.20.8
+    ports:
+      - 4002:3008
+    volumes:
+      - ./:/usr/src/krealty
+    working_dir: /usr/src/krealty
+    environment:
+      - PORT_BATCH=3008
+      - NODE_ENV=production
+    networks:
+      - monorepo-network
+    #PRODUCTION
+    command: bash -c "npm install --include=dev && npm run build && npm run start:prod:batch"
+
+networks:
+  monorepo-network:
+    driver: bridge
