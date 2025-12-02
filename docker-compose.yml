@@ -38,3 +38,25 @@ services:
 networks:
   monorepo-network:
     driver: bridge
+
+
+
+
+
+    # Docker Commands:
+    # docker-compose up -d                    # Start all services in detached mode
+    # docker-compose up                       # Start all services and show logs
+    # docker-compose down                     # Stop and remove all containers
+    # docker-compose ps                       # List running containers
+    # docker-compose logs                     # Show logs from all services
+    # docker-compose logs -f                  # Follow logs from all services
+    # docker-compose logs krealty-api         # Show logs from specific service
+    # docker-compose restart                  # Restart all services
+    # docker-compose restart krealty-api      # Restart specific service
+    # docker-compose stop                     # Stop all services
+    # docker-compose start                    # Start all services
+    # docker-compose build                    # Build images
+    # docker-compose exec krealty-api bash   # Execute command in running container
+    # docker-compose pull                     # Pull latest images
+    # docker-compose up --build               # Rebuild and start services
+
