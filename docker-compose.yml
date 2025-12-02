@@ -6,16 +6,16 @@ services:
     restart: always
     image: node:18.20.8
     ports:
-      - 4000:3007
+      - 3000:3000
     volumes:
       - ./:/usr/src/krealty
     working_dir: /usr/src/krealty
     environment:
-      - PORT_API=3007
+      - PORT_API=3000
       - NODE_ENV=production
     networks:
       - monorepo-network
-    #PRODUCTION
+    #PRODUCTIONPORTS
     command: bash -c "npm install --include=dev && npm run build && npm run start:prod"
 
   krealty-batch:
@@ -23,16 +23,16 @@ services:
     restart: unless-stopped
     image: node:18.20.8
     ports:
-      - 4002:3008
+      - 3005:3005
     volumes:
       - ./:/usr/src/krealty
     working_dir: /usr/src/krealty
     environment:
-      - PORT_BATCH=3008
+      - PORT_BATCH=3005
       - NODE_ENV=production
     networks:
       - monorepo-network
-    #PRODUCTION
+    #PRODUCTION PORTS
     command: bash -c "npm install --include=dev && npm run build && npm run start:prod:batch"
 
 networks:
