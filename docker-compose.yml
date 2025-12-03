@@ -16,7 +16,7 @@ services:
     networks:
       - monorepo-network
     #PRODUCTIONPORTS
-    command: bash -c "npm install --include=dev && npm run build && npm run start:prod"
+    command: bash -c "rm -rf dist && npm install --include=dev && npm run build && npm run start:prod"
 
   # krealty-batch:
   #   container_name: krealty-batch
