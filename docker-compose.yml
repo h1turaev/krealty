@@ -18,22 +18,22 @@ services:
     #PRODUCTIONPORTS
     command: bash -c "npm install --include=dev && npm run build && npm run start:prod"
 
-  krealty-batch:
-    container_name: krealty-batch
-    restart: unless-stopped
-    image: node:18.20.8
-    ports:
-      - 3005:3005
-    volumes:
-      - ./:/usr/src/krealty
-    working_dir: /usr/src/krealty
-    environment:
-      - PORT_BATCH=3005
-      - NODE_ENV=production
-    networks:
-      - monorepo-network
-    #PRODUCTION PORTS
-    command: bash -c "npm install --include=dev && npm run build && npm run start:prod:batch"
+  # krealty-batch:
+  #   container_name: krealty-batch
+  #   restart: unless-stopped
+  #   image: node:18.20.8
+  #   ports:
+  #     - 3005:3005
+  #   volumes:
+  #     - ./:/usr/src/krealty
+  #   working_dir: /usr/src/krealty
+  #   environment:
+  #     - PORT_BATCH=3005
+  #     - NODE_ENV=production
+  #   networks:
+  #     - monorepo-network
+  #   #PRODUCTION PORTS
+  #   command: bash -c "npm install --include=dev && npm run build && npm run start:prod:batch"
 
 networks:
   monorepo-network:
@@ -59,4 +59,3 @@ networks:
     # docker-compose exec krealty-api bash   # Execute command in running container
     # docker-compose pull                     # Pull latest images
     # docker-compose up --build               # Rebuild and start services
-
